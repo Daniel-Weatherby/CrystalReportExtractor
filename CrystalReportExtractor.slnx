@@ -1,0 +1,12 @@
+<Solution>
+  <Configurations>
+    <Platform Name="Any CPU" />
+    <Platform Name="x64" />
+  </Configurations>
+  <Project Path="CrystalReportExtractor.Core/CrystalReportExtractor.Core.csproj" Id="6cc70a21-3588-4b29-9fb5-8556074563d1">
+    <Platform Solution="*|x64" Project="x64" />
+  </Project>
+  <Project Path="CrystalReportExtractor.Desktop/CrystalReportExtractor.Desktop.csproj" Id="a3cb8e20-b295-462f-bed1-786d2f5ef617">
+    <Platform Solution="*|x64" Project="x64" />
+  </Project>
+</Solution>
