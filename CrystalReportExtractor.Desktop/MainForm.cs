@@ -263,7 +263,7 @@ namespace CrystalReportExtractor.Desktop
                 MessageBox.Show(
                     this,
                     string.Format(
-                        "Reports found: {0}\nSucceeded: {1}\nFailed: {2}\nSkipped: {3}",
+                        "Reports found: {0}\nSucceeded: {1}\nFailed: {2}\nSkipped: {3}\n\nInventory: crystal-report-inventory.csv",
                         summary.ReportsFound,
                         summary.Succeeded,
                         summary.Failed,
