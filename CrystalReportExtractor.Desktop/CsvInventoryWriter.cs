@@ -84,7 +84,7 @@ namespace CrystalReportExtractor.Desktop
                 return value;
             }
 
-            return """ + value.Replace(""", """") + """;
+            return "\"" + value.Replace("\"", "\"\"") + "\"";
         }
 
         private static void WriteAtomically(string outputPath, string content)
