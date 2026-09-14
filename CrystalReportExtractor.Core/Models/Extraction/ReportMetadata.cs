@@ -36,6 +36,7 @@
 
 using System;
 using System.Collections.Generic;
+using CrystalReportExtractor.Core.Models.Analysis;
 
 namespace CrystalReportExtractor.Core.Models.Extraction
 {
@@ -154,6 +155,13 @@ namespace CrystalReportExtractor.Core.Models.Extraction
         /// </summary>
         public List<string> ExtractionWarnings { get; set; }
             = new List<string>();
+
+        /// <summary>
+        /// Gets or sets deterministic metrics derived from the extracted
+        /// structure. This is populated after extraction and is not sourced
+        /// from the Crystal SDK.
+        /// </summary>
+        public ReportAnalysis Analysis { get; set; }
     }
 
     /// <summary>
