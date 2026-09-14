@@ -45,6 +45,7 @@
   <ItemGroup>
     <Compile Include="BatchModels.cs" />
     <Compile Include="BatchProcessor.cs" />
+    <Compile Include="CsvInventoryWriter.cs" />
     <Compile Include="SQLCommandTest.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
