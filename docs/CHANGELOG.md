@@ -1,5 +1,14 @@
 # Changelog
 
+## Report analysis and portfolio inventory — 15 September 2026
+
+- Added deterministic direct-report and whole-report-tree structural metrics.
+- Added versioned complexity scoring while retaining the objective component counts.
+- Embedded the analysis result in each newly generated metadata JSON file.
+- Added `crystal-report-inventory.csv` with one flattened row per analysed report.
+- Included existing skipped JSON files in the CSV without rewriting them.
+- Kept Crystal SDK extraction separate from derived migration analysis.
+
 ## 19 August 2026 — desktop-only package
 
 - Removed the ASP.NET web project from the solution and package.
