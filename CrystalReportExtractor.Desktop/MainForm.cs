@@ -51,7 +51,7 @@ namespace CrystalReportExtractor.Desktop
 
             var informationLabel = new Label
             {
-                Text = "Select an input folder containing .rpt files and a separate output folder for JSON metadata.",
+                Text = "Select an input folder containing .rpt files and a separate output folder for analysed JSON metadata and the master CSV inventory.",
                 AutoSize = true,
                 MaximumSize = new Size(820, 0)
             };
