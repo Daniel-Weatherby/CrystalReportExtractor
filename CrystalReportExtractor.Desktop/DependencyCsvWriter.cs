@@ -55,6 +55,9 @@ namespace CrystalReportExtractor.Desktop
             bool isSubreport,
             ReportMetadata metadata)
         {
+            var representedCommands =
+                new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
             if (metadata.Tables != null)
             {
                 foreach (TableMetadata table in metadata.Tables)
@@ -64,19 +67,34 @@ namespace CrystalReportExtractor.Desktop
                         continue;
                     }
 
+                    string dependencyKind = ClassifyTable(table);
+                    bool isCommand = string.Equals(
+                        dependencyKind,
+                        "SqlCommand",
+                        StringComparison.OrdinalIgnoreCase);
+
+                    if (isCommand)
+                    {
+                        AddKey(representedCommands, table.Name);
+                        AddKey(representedCommands, table.Alias);
+                    }
+
                     AppendRow(
                         csv,
                         sourceRelativePath,
                         reportName,
                         reportContext,
                         isSubreport,
-                        ClassifyTable(table),
+                        dependencyKind,
                         table.Name,
                         table.Alias,
                         table.Location,
                         table.ObjectType,
                         table.ProviderObjectType,
-                        false);
+                        isCommand && HasMatchingSql(
+                            metadata.SqlCommands,
+                            table.Name,
+                            table.Alias));
                 }
             }
 
@@ -84,7 +102,11 @@ namespace CrystalReportExtractor.Desktop
             {
                 foreach (SqlCommandMetadata command in metadata.SqlCommands)
                 {
-                    if (command == null)
+                    if (command == null ||
+                        ContainsKey(
+                            representedCommands,
+                            command.Name,
+                            command.Alias))
                     {
                         continue;
                     }
@@ -132,6 +154,64 @@ namespace CrystalReportExtractor.Desktop
                     true,
                     subreport.Definition);
             }
+        }
+
+        private static bool HasMatchingSql(
+            IEnumerable<SqlCommandMetadata> commands,
+            string name,
+            string alias)
+        {
+            if (commands == null)
+            {
+                return false;
+            }
+
+            foreach (SqlCommandMetadata command in commands)
+            {
+                if (command != null &&
+                    (ValuesMatch(command.Name, name) ||
+                     ValuesMatch(command.Name, alias) ||
+                     ValuesMatch(command.Alias, name) ||
+                     ValuesMatch(command.Alias, alias)))
+                {
+                    return !string.IsNullOrWhiteSpace(command.Sql);
+                }
+            }
+
+            return false;
+        }
+
+        private static void AddKey(
+            ISet<string> keys,
+            string value)
+        {
+            if (!string.IsNullOrWhiteSpace(value))
+            {
+                keys.Add(value.Trim());
+            }
+        }
+
+        private static bool ContainsKey(
+            ISet<string> keys,
+            string name,
+            string alias)
+        {
+            return
+                (!string.IsNullOrWhiteSpace(name) &&
+                 keys.Contains(name.Trim())) ||
+                (!string.IsNullOrWhiteSpace(alias) &&
+                 keys.Contains(alias.Trim()));
+        }
+
+        private static bool ValuesMatch(string left, string right)
+        {
+            return
+                !string.IsNullOrWhiteSpace(left) &&
+                !string.IsNullOrWhiteSpace(right) &&
+                string.Equals(
+                    left.Trim(),
+                    right.Trim(),
+                    StringComparison.OrdinalIgnoreCase);
         }
 
         private static string ClassifyTable(TableMetadata table)
