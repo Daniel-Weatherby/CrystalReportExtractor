@@ -1,5 +1,13 @@
 # Changelog
 
+## Report dependency inventory — 15 September 2026
+
+- Added `crystal-report-dependencies.csv` with one row per extracted database object or SQL Command.
+- Included dependencies from the main report and recursively extracted subreports.
+- Preserved aliases, locations and raw Crystal/provider object classifications.
+- Added a conservative dependency-kind classification for tables, views, stored procedures and SQL Commands.
+- Kept embedded SQL text in the detailed JSON rather than duplicating it into the flattened CSV.
+
 ## Report analysis and portfolio inventory — 15 September 2026
 
 - Added deterministic direct-report and whole-report-tree structural metrics.

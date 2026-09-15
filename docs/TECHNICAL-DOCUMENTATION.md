@@ -47,9 +47,10 @@ embedded-interop warnings and runtime type incompatibilities.
 8. `ReportAnalyser` calculates direct and recursive structural metrics and a versioned complexity score.
 9. Newtonsoft.Json serializes the enriched model with indented camel-case properties.
 10. `CsvInventoryWriter` writes the flattened `crystal-report-inventory.csv` portfolio view.
-11. Output is written through a same-directory temporary file and then moved or
+11. `DependencyCsvWriter` writes `crystal-report-dependencies.csv` with report-to-database-object lineage.
+12. Output is written through a same-directory temporary file and then moved or
    replaced atomically.
-12. Processing continues after an individual report failure.
+13. Processing continues after an individual report failure.
 
 ## 5. Extracted JSON contract
 
@@ -162,6 +163,8 @@ server/database names, literal report text and business rules.
 - Existing JSON is skipped unless overwrite is selected.
 - Cancellation is checked between reports.
 - Every run overwrites `extraction-run-summary.json` with the latest run.
+- Every run creates `crystal-report-dependencies.csv` for main-report and subreport database objects.
+- Embedded SQL text remains in detailed JSON and is represented only by a flag in the dependency CSV.
 - Atomic file writing prevents a partially serialized final JSON file.
 
 ## 10. Known limitations

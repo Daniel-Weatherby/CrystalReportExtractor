@@ -122,6 +122,10 @@ namespace CrystalReportExtractor.Desktop
                 Path.Combine(outputRoot, "crystal-report-inventory.csv"),
                 summary.Results);
 
+            DependencyCsvWriter.Write(
+                Path.Combine(outputRoot, "crystal-report-dependencies.csv"),
+                summary.Results);
+
             WriteJsonAtomically(
                 Path.Combine(outputRoot, "extraction-run-summary.json"),
                 JsonConvert.SerializeObject(summary, _jsonSettings),
