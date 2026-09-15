@@ -19,6 +19,8 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using CrystalReportExtractor.Core.Analysis;
+using CrystalReportExtractor.Core.Models.Extraction;
 using CrystalReportExtractor.Core.Services;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
@@ -28,12 +30,14 @@ namespace CrystalReportExtractor.Desktop
     internal sealed class BatchProcessor
     {
         private readonly ICrystalReportExtractor _extractor;
+        private readonly ReportAnalyser _analyser;
         private readonly JsonSerializerSettings _jsonSettings;
 
         public BatchProcessor()
         {
             _extractor = new CrystalReportExtractor.Core.Services
                 .CrystalReportExtractor();
+            _analyser = new ReportAnalyser();
 
             _jsonSettings = new JsonSerializerSettings
             {
@@ -113,6 +117,11 @@ namespace CrystalReportExtractor.Desktop
             }
 
             summary.CompletedAtUtc = DateTime.UtcNow;
+
+            CsvInventoryWriter.Write(
+                Path.Combine(outputRoot, "crystal-report-inventory.csv"),
+                summary.Results);
+
             WriteJsonAtomically(
                 Path.Combine(outputRoot, "extraction-run-summary.json"),
                 JsonConvert.SerializeObject(summary, _jsonSettings),
@@ -139,6 +148,21 @@ namespace CrystalReportExtractor.Desktop
             {
                 if (File.Exists(outputPath) && !overwriteExisting)
                 {
+                    ReportMetadata existingMetadata =
+                        JsonConvert.DeserializeObject<ReportMetadata>(
+                            File.ReadAllText(outputPath));
+
+                    if (existingMetadata != null)
+                    {
+                        existingMetadata.Analysis =
+                            _analyser.Analyse(existingMetadata);
+                        result.Metadata = existingMetadata;
+                        result.WarningCount =
+                            existingMetadata.ExtractionWarnings == null
+                                ? 0
+                                : existingMetadata.ExtractionWarnings.Count;
+                    }
+
                     result.Status = "Skipped";
                     return result;
                 }
@@ -149,6 +173,8 @@ namespace CrystalReportExtractor.Desktop
                     fileInfo.Name,
                     fileInfo.Length);
 
+                metadata.Analysis = _analyser.Analyse(metadata);
+
                 string json = JsonConvert.SerializeObject(
                     metadata,
                     _jsonSettings);
@@ -157,6 +183,7 @@ namespace CrystalReportExtractor.Desktop
 
                 result.Status = "Succeeded";
                 result.WarningCount = metadata.ExtractionWarnings.Count;
+                result.Metadata = metadata;
             }
             catch (Exception exception)
             {

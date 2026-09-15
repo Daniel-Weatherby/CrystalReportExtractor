@@ -51,7 +51,7 @@ namespace CrystalReportExtractor.Desktop
 
             var informationLabel = new Label
             {
-                Text = "Select an input folder containing .rpt files and a separate output folder for JSON metadata.",
+                Text = "Select an input folder containing .rpt files and a separate output folder for analysed JSON metadata and the master CSV inventory.",
                 AutoSize = true,
                 MaximumSize = new Size(820, 0)
             };
@@ -263,7 +263,7 @@ namespace CrystalReportExtractor.Desktop
                 MessageBox.Show(
                     this,
                     string.Format(
-                        "Reports found: {0}\nSucceeded: {1}\nFailed: {2}\nSkipped: {3}",
+                        "Reports found: {0}\nSucceeded: {1}\nFailed: {2}\nSkipped: {3}\n\nInventory: crystal-report-inventory.csv",
                         summary.ReportsFound,
                         summary.Succeeded,
                         summary.Failed,

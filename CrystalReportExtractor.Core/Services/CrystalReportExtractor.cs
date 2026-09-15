@@ -1110,7 +1110,7 @@ namespace CrystalReportExtractor.Core.Services
                 var subreportMetadata = new SubreportMetadata
                 {
                     Name = subreportObject.SubreportName,
-                    ParentSection = parentSection.Name,
+                    ParentSection = SafeSectionName(parentSection),
                     ReportObjectName = subreportObject.Name,
                     Definition = nestedMetadata
                 };
@@ -1147,6 +1147,21 @@ namespace CrystalReportExtractor.Core.Services
                     subreportDocument.Dispose();
                 }
             }
+        }
+
+        /// <summary>
+        /// Reads the parent section name without binding to an SDK property
+        /// that is unavailable in some Crystal Reports runtime versions.
+        /// </summary>
+        private static string SafeSectionName(Section section)
+        {
+            return ReadSdkText(
+                section,
+                "Name",
+                "SectionName",
+                "Kind",
+                "AreaKind")
+                ?? "Unknown";
         }
 
         /// <summary>

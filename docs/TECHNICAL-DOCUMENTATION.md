@@ -44,10 +44,12 @@ embedded-interop warnings and runtime type incompatibilities.
    reflection.
 6. Embedded subreports are opened and mapped into nested `ReportMetadata`.
 7. The report is closed and disposed in a `finally` block.
-8. Newtonsoft.Json serializes the model with indented camel-case properties.
-9. Output is written through a same-directory temporary file and then moved or
+8. `ReportAnalyser` calculates direct and recursive structural metrics and a versioned complexity score.
+9. Newtonsoft.Json serializes the enriched model with indented camel-case properties.
+10. `CsvInventoryWriter` writes the flattened `crystal-report-inventory.csv` portfolio view.
+11. Output is written through a same-directory temporary file and then moved or
    replaced atomically.
-10. Processing continues after an individual report failure.
+12. Processing continues after an individual report failure.
 
 ## 5. Extracted JSON contract
 
@@ -73,6 +75,7 @@ embedded-interop warnings and runtime type incompatibilities.
 | `sections` | Section layout, object placement, literal text, suppression and conditional formatting. |
 | `subreports` | Nested report metadata, parent section/object and parameter links. |
 | `extractionWarnings` | Safe descriptions of partial or inaccessible metadata. |
+| `analysis` | Direct and whole-report-tree counts, complexity score, band and scoring-model version. |
 
 ### Running totals
 
@@ -102,7 +105,25 @@ the report's most recent data refresh, so it cannot provide a complete static
 inventory of alert definitions. Returning that runtime subset would create
 false negatives during report analysis.
 
-## 6. Subreport handling
+## 6. Deterministic analysis
+
+Analysis is calculated from the stable in-memory `ReportMetadata` object before
+JSON serialisation. `directMetrics` describes the parent report only;
+`totalMetrics` includes recursively extracted subreports.
+
+Complexity model 1.0 uses explicit structural weights: formulas, parameters,
+tables, relationships and sorts each add 1; summaries, groups, selection
+formulas and conditional formulas add 2; running totals add 3; SQL Commands and
+subreports add 5. Scores of 0–10 are Low, 11–30 are Medium and 31 or more are
+High. The raw counts remain authoritative; the score is a migration-planning
+heuristic and can be recalculated under a future model.
+
+The desktop writes `crystal-report-inventory.csv` after every run. Its counts
+use `totalMetrics`, so nested report complexity is not hidden. Existing JSON
+files skipped by the overwrite option are deserialised and analysed for the
+CSV, but are not rewritten.
+
+## 7. Subreport handling
 
 The extractor discovers `SubreportObject` instances in parent sections and
 opens them with `ReportDocument.OpenSubreport`. It extracts:
@@ -120,7 +141,7 @@ Crystal does not support a subreport inside another subreport, so the code does
 not attempt a deeper traversal. `MaximumSubreportDepth` remains a defensive
 limit for parent traversal.
 
-## 7. Security and privacy controls
+## 8. Security and privacy controls
 
 - The desktop application contains no upload or network-transfer code.
 - Database passwords, credentials and connection properties outside the
@@ -134,7 +155,7 @@ limit for parent traversal.
 The output is not automatically non-sensitive. It may contain SQL, formulas,
 server/database names, literal report text and business rules.
 
-## 8. Batch behaviour
+## 9. Batch behaviour
 
 - Input enumeration is top-level or recursive according to the UI option.
 - Input subfolder structure is preserved in the output.
@@ -143,7 +164,7 @@ server/database names, literal report text and business rules.
 - Every run overwrites `extraction-run-summary.json` with the latest run.
 - Atomic file writing prevents a partially serialized final JSON file.
 
-## 9. Known limitations
+## 10. Known limitations
 
 - Extraction is limited to metadata exposed by the installed Crystal SDK and
   available database drivers.
@@ -159,7 +180,7 @@ server/database names, literal report text and business rules.
   report data, render output or migrate Crystal logic.
 - No automated Windows/Crystal SDK test project is included.
 
-## 10. Build and validation
+## 11. Build and validation
 
 Build both projects in Visual Studio using `x64`. A successful rebuild should
 report two succeeded projects and no failures.
@@ -175,7 +196,7 @@ After rebuilding, compare new JSON with a known-good baseline and inspect
 `extractionWarnings`. Source review outside Windows cannot replace a Windows
 x64 build because the SAP runtime is Windows-specific.
 
-## 11. Maintenance guidance
+## 12. Maintenance guidance
 
 - Add stable model properties deliberately; downstream consumers rely on JSON
   property names.

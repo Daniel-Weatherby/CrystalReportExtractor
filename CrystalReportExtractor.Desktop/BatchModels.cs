@@ -7,6 +7,8 @@
 
 using System;
 using System.Collections.Generic;
+using CrystalReportExtractor.Core.Models.Extraction;
+using Newtonsoft.Json;
 
 namespace CrystalReportExtractor.Desktop
 {
@@ -50,5 +52,8 @@ namespace CrystalReportExtractor.Desktop
         public long ElapsedMilliseconds { get; set; }
         public string ErrorType { get; set; }
         public string ErrorMessage { get; set; }
+
+        [JsonIgnore]
+        public ReportMetadata Metadata { get; set; }
     }
 }
